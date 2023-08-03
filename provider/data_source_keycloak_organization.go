@@ -20,7 +20,7 @@ func dataSourceKeycloakOrganization() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"displayName": {
+			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

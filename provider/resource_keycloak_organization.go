@@ -32,7 +32,7 @@ func resourceKeycloakOrganization() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"displayName": {
+			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -67,7 +67,7 @@ func mapFromDataToOrganization(data *schema.ResourceData) *keycloak.Organization
 		Id:          data.Id(),
 		RealmName:   data.Get("realm").(string),
 		Name:        data.Get("name").(string),
-		DisplayName: data.Get("displayName").(string),
+		DisplayName: data.Get("display_name").(string),
 		URL:         data.Get("url").(string),
 		Domains:     data.Get("domains").([]string),
 		Attributes:  attributes,
@@ -84,7 +84,7 @@ func mapFromOrganizationToData(data *schema.ResourceData, organization *keycloak
 	data.SetId(organization.Id)
 	data.Set("realm", organization.RealmName)
 	data.Set("name", organization.Name)
-	data.Set("displayName", organization.DisplayName)
+	data.Set("display_name", organization.DisplayName)
 	data.Set("url", organization.URL)
 	data.Set("domains", organization.Domains)
 	data.Set("attributes", attributes)

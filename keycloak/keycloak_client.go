@@ -7,7 +7,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -15,6 +14,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/hashicorp/go-version"
 
@@ -383,8 +384,36 @@ func (keycloakClient *KeycloakClient) get(ctx context.Context, path string, reso
 	return json.Unmarshal(body, resource)
 }
 
+func (keycloakClient *KeycloakClient) getRoot(ctx context.Context, path string, resource interface{}, params map[string]string) error {
+	body, err := keycloakClient.getRawRoot(ctx, path, params)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(body, resource)
+}
+
 func (keycloakClient *KeycloakClient) getRaw(ctx context.Context, path string, params map[string]string) ([]byte, error) {
 	resourceUrl := keycloakClient.baseUrl + apiUrl + path
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, resourceUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		query := url.Values{}
+		for k, v := range params {
+			query.Add(k, v)
+		}
+		request.URL.RawQuery = query.Encode()
+	}
+
+	body, _, err := keycloakClient.sendRequest(ctx, request, nil)
+	return body, err
+}
+
+func (keycloakClient *KeycloakClient) getRawRoot(ctx context.Context, path string, params map[string]string) ([]byte, error) {
+	resourceUrl := keycloakClient.baseUrl + path
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, resourceUrl, nil)
 	if err != nil {
@@ -434,6 +463,24 @@ func (keycloakClient *KeycloakClient) post(ctx context.Context, path string, req
 	return body, location, err
 }
 
+func (keycloakClient *KeycloakClient) postRoot(ctx context.Context, path string, requestBody interface{}) ([]byte, string, error) {
+	resourceUrl := keycloakClient.baseUrl + path
+
+	payload, err := keycloakClient.marshal(requestBody)
+	if err != nil {
+		return nil, "", err
+	}
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, resourceUrl, nil)
+	if err != nil {
+		return nil, "", err
+	}
+
+	body, location, err := keycloakClient.sendRequest(ctx, request, payload)
+
+	return body, location, err
+}
+
 func (keycloakClient *KeycloakClient) put(ctx context.Context, path string, requestBody interface{}) error {
 	resourceUrl := keycloakClient.baseUrl + apiUrl + path
 
@@ -452,8 +499,51 @@ func (keycloakClient *KeycloakClient) put(ctx context.Context, path string, requ
 	return err
 }
 
+func (keycloakClient *KeycloakClient) putRoot(ctx context.Context, path string, requestBody interface{}) error {
+	resourceUrl := keycloakClient.baseUrl + path
+
+	payload, err := keycloakClient.marshal(requestBody)
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodPut, resourceUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = keycloakClient.sendRequest(ctx, request, payload)
+
+	return err
+}
+
 func (keycloakClient *KeycloakClient) delete(ctx context.Context, path string, requestBody interface{}) error {
 	resourceUrl := keycloakClient.baseUrl + apiUrl + path
+
+	var (
+		payload []byte
+		err     error
+	)
+
+	if requestBody != nil {
+		payload, err = keycloakClient.marshal(requestBody)
+		if err != nil {
+			return err
+		}
+	}
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodDelete, resourceUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = keycloakClient.sendRequest(ctx, request, payload)
+
+	return err
+}
+
+func (keycloakClient *KeycloakClient) deleteRoot(ctx context.Context, path string, requestBody interface{}) error {
+	resourceUrl := keycloakClient.baseUrl + path
 
 	var (
 		payload []byte

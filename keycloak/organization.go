@@ -16,7 +16,7 @@ type Organization struct {
 }
 
 func (keycloakClient *KeycloakClient) NewOrganization(ctx context.Context, organization *Organization) error {
-	_, location, err := keycloakClient.post(ctx, fmt.Sprintf("/realms/%s/orgs", organization.RealmName), organization)
+	_, location, err := keycloakClient.postRoot(ctx, fmt.Sprintf("/realms/%s/orgs", organization.RealmName), organization)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func (keycloakClient *KeycloakClient) NewOrganization(ctx context.Context, organ
 func (keycloakClient *KeycloakClient) GetOrganization(ctx context.Context, realmName string, orgId string) (*Organization, error) {
 	var organization *Organization
 
-	err := keycloakClient.get(ctx, fmt.Sprintf("/realms/%s/orgs/%s", realmName, orgId), &organization, nil)
+	err := keycloakClient.getRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s", realmName, orgId), &organization, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (keycloakClient *KeycloakClient) GetOrganization(ctx context.Context, realm
 func (keycloakClient *KeycloakClient) GetOrganizations(ctx context.Context, realmName string) ([]*Organization, error) {
 	var organizations []*Organization
 
-	err := keycloakClient.get(ctx, fmt.Sprintf("/realms/%s/orgs", realmName), &organizations, nil)
+	err := keycloakClient.getRoot(ctx, fmt.Sprintf("/realms/%s/orgs", realmName), &organizations, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +49,9 @@ func (keycloakClient *KeycloakClient) GetOrganizations(ctx context.Context, real
 }
 
 func (keycloakClient *KeycloakClient) UpdateOrganization(ctx context.Context, organization *Organization) error {
-	return keycloakClient.put(ctx, fmt.Sprintf("/realms/%s/orgs/%s", organization.RealmName, organization.Id), organization)
+	return keycloakClient.putRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s", organization.RealmName, organization.Id), organization)
 }
 
 func (keycloakClient *KeycloakClient) DeleteOrganization(ctx context.Context, realmName, id string) error {
-	return keycloakClient.delete(ctx, fmt.Sprintf("/realms/%s/orgs/%s", realmName, id), nil)
+	return keycloakClient.deleteRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s", realmName, id), nil)
 }

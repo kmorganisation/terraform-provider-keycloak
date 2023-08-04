@@ -63,13 +63,20 @@ func mapFromDataToOrganization(data *schema.ResourceData) *keycloak.Organization
 		}
 	}
 
+	var domains []string
+	if v, ok := data.GetOk("domains"); ok {
+		for _, domain := range v.(*schema.Set).List() {
+			domains = append(domains, domain.(string))
+		}
+	}
+
 	organization := &keycloak.Organization{
 		Id:          data.Id(),
 		RealmName:   data.Get("realm").(string),
 		Name:        data.Get("name").(string),
 		DisplayName: data.Get("display_name").(string),
 		URL:         data.Get("url").(string),
-		Domains:     data.Get("domains").([]string),
+		Domains:     domains,
 		Attributes:  attributes,
 	}
 

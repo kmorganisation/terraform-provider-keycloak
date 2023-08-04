@@ -6,6 +6,7 @@ import (
 )
 
 type OrganizationRole struct {
+	Id          string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 	Realm       string `json:"-"`
@@ -14,6 +15,11 @@ type OrganizationRole struct {
 
 func (keycloakClient *KeycloakClient) NewOrganizationRole(ctx context.Context, role *OrganizationRole) error {
 	_, _, err := keycloakClient.postRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s/roles", role.Realm, role.OrgId), role)
+	if err != nil {
+		return err
+	}
+
+	role, err = keycloakClient.GetOrganizationRole(ctx, role.Realm, role.OrgId, role.Name)
 	if err != nil {
 		return err
 	}

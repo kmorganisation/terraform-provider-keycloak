@@ -47,6 +47,7 @@ func resourceKeycloakOrganizationRole() *schema.Resource {
 
 func mapFromDataToOrganizationRole(data *schema.ResourceData) *keycloak.OrganizationRole {
 	return &keycloak.OrganizationRole{
+		Id:          data.Id(),
 		Name:        data.Get("name").(string),
 		Description: data.Get("description").(string),
 		Realm:       data.Get("realm").(string),
@@ -55,7 +56,7 @@ func mapFromDataToOrganizationRole(data *schema.ResourceData) *keycloak.Organiza
 }
 
 func mapFromOrganizationRoleToData(data *schema.ResourceData, role *keycloak.OrganizationRole) {
-	data.SetId(fmt.Sprintf("%s-%s", role.Realm, role.Name))
+	data.SetId(role.Id)
 	data.Set("name", role.Name)
 	data.Set("description", role.Description)
 	data.Set("realm", role.Realm)
@@ -125,15 +126,12 @@ func resourceKeycloakOrganizationRoleImport(ctx context.Context, d *schema.Resou
 		return nil, fmt.Errorf("Invalid import. Supported import formats: {{realmName}}/{{organizationId}}/{{roleName}}")
 	}
 
-	_, err := keycloakClient.GetOrganizationRole(ctx, parts[0], parts[1], parts[2])
+	role, err := keycloakClient.GetOrganizationRole(ctx, parts[0], parts[1], parts[3])
 	if err != nil {
 		return nil, err
 	}
 
-	d.Set("realm", parts[0])
-	d.Set("organization_id", parts[1])
-	d.Set("name", parts[2])
-	d.SetId(fmt.Sprintf("%s-%s", parts[0], parts[2]))
+	mapFromOrganizationRoleToData(d, role)
 
 	diagnostics := resourceKeycloakOrganizationRoleRead(ctx, d, meta)
 	if diagnostics.HasError() {

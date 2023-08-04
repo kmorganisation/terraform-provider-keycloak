@@ -9,8 +9,8 @@ type OrganizationRole struct {
 	Id          string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
-	Realm       string `json:"-"`
-	OrgId       string `json:"-"`
+	Realm       string `json:"realm,omitempty"`
+	OrgId       string `json:"organization_id,omitempty"`
 }
 
 func (keycloakClient *KeycloakClient) NewOrganizationRole(ctx context.Context, role *OrganizationRole) error {

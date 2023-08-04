@@ -17,7 +17,7 @@ func dataSourceKeycloakOrganizationRole() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"organisation_id": {
+			"organization_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -38,7 +38,7 @@ func dataSourceKeycloakOrganizationRoleRead(ctx context.Context, data *schema.Re
 	keycloakClient := meta.(*keycloak.KeycloakClient)
 
 	realmName := data.Get("realm").(string)
-	organizationId := data.Get("organisation_id").(string)
+	organizationId := data.Get("organization_id").(string)
 	roleName := data.Get("name").(string)
 
 	role, err := keycloakClient.GetOrganizationRole(ctx, realmName, organizationId, roleName)

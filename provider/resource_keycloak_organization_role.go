@@ -131,7 +131,10 @@ func resourceKeycloakOrganizationRoleImport(ctx context.Context, d *schema.Resou
 		return nil, err
 	}
 
-	mapFromOrganizationRoleToData(d, role)
+	d.Set("realm", parts[0])
+	d.Set("organization_id", parts[1])
+	d.Set("name", parts[2])
+	d.SetId(role.Id)
 
 	diagnostics := resourceKeycloakOrganizationRoleRead(ctx, d, meta)
 	if diagnostics.HasError() {

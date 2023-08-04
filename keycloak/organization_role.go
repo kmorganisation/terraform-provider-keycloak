@@ -9,17 +9,17 @@ type OrganizationRole struct {
 	Id          string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
-	Realm       string `json:"realm,omitempty"`
-	OrgId       string `json:"organization_id,omitempty"`
+	Realm       string `json:"-"`
+	OrgId       string `json:"-"`
 }
 
-func (keycloakClient *KeycloakClient) NewOrganizationRole(ctx context.Context, role *OrganizationRole) error {
-	_, _, err := keycloakClient.postRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s/roles", role.Realm, role.OrgId), role)
+func (keycloakClient *KeycloakClient) NewOrganizationRole(ctx context.Context, realmName, orgId string, role *OrganizationRole) error {
+	_, _, err := keycloakClient.postRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s/roles", realmName, orgId), role)
 	if err != nil {
 		return err
 	}
 
-	role, err = keycloakClient.GetOrganizationRole(ctx, role.Realm, role.OrgId, role.Name)
+	role, err = keycloakClient.GetOrganizationRole(ctx, realmName, orgId, role.Name)
 	if err != nil {
 		return err
 	}
@@ -35,22 +35,22 @@ func (keycloakClient *KeycloakClient) GetOrganizationRole(ctx context.Context, r
 		return nil, err
 	}
 
+	role.Realm = realmName
+	role.OrgId = orgId
+
 	return role, nil
 }
 
-func (keycloakClient *KeycloakClient) GetOrganizationRoles(ctx context.Context, realmName, orgId string) ([]*OrganizationRole, error) {
-	var roles []*OrganizationRole
-
-	err := keycloakClient.getRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s/roles", realmName, orgId), &roles, nil)
+func (keycloakClient *KeycloakClient) UpdateOrganizationRole(ctx context.Context, realmName, orgId string, role *OrganizationRole) error {
+	err := keycloakClient.putRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s/roles/%s", realmName, orgId, role.Name), role)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return roles, nil
-}
+	role.Realm = realmName
+	role.OrgId = orgId
 
-func (keycloakClient *KeycloakClient) UpdateOrganizationRole(ctx context.Context, role *OrganizationRole) error {
-	return keycloakClient.putRoot(ctx, fmt.Sprintf("/realms/%s/orgs/%s/roles/%s", role.Realm, role.OrgId, role.Name), role)
+	return nil
 }
 
 func (keycloakClient *KeycloakClient) DeleteOrganizationRole(ctx context.Context, realmName, orgId, roleName string) error {

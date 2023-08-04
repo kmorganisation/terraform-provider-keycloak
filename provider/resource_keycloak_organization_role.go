@@ -68,7 +68,7 @@ func resourceKeycloakOrganizationRoleCreate(ctx context.Context, data *schema.Re
 
 	role := mapFromDataToOrganizationRole(data)
 
-	err := keycloakClient.NewOrganizationRole(ctx, role)
+	err := keycloakClient.NewOrganizationRole(ctx, role.Realm, role.OrgId, role)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -100,7 +100,7 @@ func resourceKeycloakOrganizationRoleUpdate(ctx context.Context, data *schema.Re
 
 	role := mapFromDataToOrganizationRole(data)
 
-	err := keycloakClient.UpdateOrganizationRole(ctx, role)
+	err := keycloakClient.UpdateOrganizationRole(ctx, role.Realm, role.OrgId, role)
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -126,7 +126,7 @@ func resourceKeycloakOrganizationRoleImport(ctx context.Context, d *schema.Resou
 		return nil, fmt.Errorf("Invalid import. Supported import formats: {{realmName}}/{{organizationId}}/{{roleName}}")
 	}
 
-	role, err := keycloakClient.GetOrganizationRole(ctx, parts[0], parts[1], parts[3])
+	role, err := keycloakClient.GetOrganizationRole(ctx, parts[0], parts[1], parts[2])
 	if err != nil {
 		return nil, err
 	}

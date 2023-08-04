@@ -45,7 +45,7 @@ func dataSourceKeycloakOrganization() *schema.Resource {
 func dataSourceKeycloakOrganizationRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	keycloakClient := meta.(*keycloak.KeycloakClient)
 
-	realmName := data.Get("realm_id").(string)
+	realmName := data.Get("realm").(string)
 	organizationId := data.Get("id").(string)
 
 	organization, err := keycloakClient.GetOrganization(ctx, realmName, organizationId)

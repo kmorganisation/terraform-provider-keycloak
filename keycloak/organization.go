@@ -13,6 +13,7 @@ type Organization struct {
 	RealmName   string              `json:"realm"`
 	Domains     []string            `json:"domains"`
 	Attributes  map[string][]string `json:"attributes"`
+	Type        string              `json:"type"`
 }
 
 func (keycloakClient *KeycloakClient) NewOrganization(ctx context.Context, organization *Organization) error {

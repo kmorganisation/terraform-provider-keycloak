@@ -51,6 +51,18 @@ func resourceKeycloakOrganization() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				Default:  "broker",
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					v := val.(string)
+					if v != "broker" && v != "shipper" && v != "carrier" {
+						errs = append(errs, fmt.Errorf("%q must be either 'broker', 'shipper' or 'carrier', got: %q", key, v))
+					}
+					return warns, errs
+				},
+			},
 		},
 	}
 }
@@ -77,6 +89,7 @@ func mapFromDataToOrganization(data *schema.ResourceData) *keycloak.Organization
 		DisplayName: data.Get("display_name").(string),
 		URL:         data.Get("url").(string),
 		Domains:     domains,
+		Type:        data.Get("type").(string),
 		Attributes:  attributes,
 	}
 
@@ -95,6 +108,7 @@ func mapFromOrganizationToData(data *schema.ResourceData, organization *keycloak
 	data.Set("url", organization.URL)
 	data.Set("domains", organization.Domains)
 	data.Set("attributes", attributes)
+	data.Set("type", organization.Type)
 }
 
 func resourceKeycloakOrganizationCreate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {

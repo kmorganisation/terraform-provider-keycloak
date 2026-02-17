@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -37,6 +38,18 @@ func dataSourceKeycloakOrganization() *schema.Resource {
 			"attributes": {
 				Type:     schema.TypeMap,
 				Optional: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				Default:  "broker",
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					v := val.(string)
+					if v != "broker" && v != "shipper" && v != "carrier" {
+						errs = append(errs, fmt.Errorf("%q must be either 'broker', 'shipper' or 'carrier', got: %q", key, v))
+					}
+					return warns, errs
+				},
 			},
 		},
 	}

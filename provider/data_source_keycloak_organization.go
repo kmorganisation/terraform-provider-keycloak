@@ -41,7 +41,7 @@ func dataSourceKeycloakOrganization() *schema.Resource {
 			},
 			"type": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				Default:  "broker",
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					v := val.(string)

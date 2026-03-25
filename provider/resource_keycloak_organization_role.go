@@ -22,6 +22,7 @@ func resourceKeycloakOrganizationRole() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceKeycloakOrganizationRoleImport,
 		},
+		DeprecationMessage: "please use keycloak_organization_global_role and keycloak_organization_user_role_assignment instead",
 		Schema: map[string]*schema.Schema{
 			"realm": {
 				Type:     schema.TypeString,
@@ -70,7 +71,7 @@ func resourceKeycloakOrganizationRoleCreate(ctx context.Context, data *schema.Re
 
 	err := keycloakClient.NewOrganizationRole(ctx, role.Realm, role.OrgId, role)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(wrapOrganizationRoleAmbiguousError(err))
 	}
 
 	mapFromOrganizationRoleToData(data, role)
@@ -87,7 +88,7 @@ func resourceKeycloakOrganizationRoleRead(ctx context.Context, data *schema.Reso
 
 	role, err := keycloakClient.GetOrganizationRole(ctx, realm, orgId, roleName)
 	if err != nil {
-		return handleNotFoundError(ctx, err, data)
+		return handleNotFoundError(ctx, wrapOrganizationRoleAmbiguousError(err), data)
 	}
 
 	mapFromOrganizationRoleToData(data, role)
@@ -102,7 +103,7 @@ func resourceKeycloakOrganizationRoleUpdate(ctx context.Context, data *schema.Re
 
 	err := keycloakClient.UpdateOrganizationRole(ctx, role.Realm, role.OrgId, role)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(wrapOrganizationRoleAmbiguousError(err))
 	}
 
 	mapFromOrganizationRoleToData(data, role)
@@ -128,7 +129,7 @@ func resourceKeycloakOrganizationRoleImport(ctx context.Context, d *schema.Resou
 
 	role, err := keycloakClient.GetOrganizationRole(ctx, parts[0], parts[1], parts[2])
 	if err != nil {
-		return nil, err
+		return nil, wrapOrganizationRoleAmbiguousError(err)
 	}
 
 	d.Set("realm", parts[0])
@@ -142,4 +143,12 @@ func resourceKeycloakOrganizationRoleImport(ctx context.Context, d *schema.Resou
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func wrapOrganizationRoleAmbiguousError(err error) error {
+	if err != nil && keycloak.ErrorIs409(err) {
+		return fmt.Errorf("Role name is ambiguous. Use role_id-based resource. %w", err)
+	}
+
+	return err
 }

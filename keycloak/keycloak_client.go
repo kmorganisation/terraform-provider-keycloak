@@ -517,6 +517,19 @@ func (keycloakClient *KeycloakClient) putRoot(ctx context.Context, path string, 
 	return err
 }
 
+func (keycloakClient *KeycloakClient) putRootWithNoBody(ctx context.Context, path string) error {
+	resourceUrl := keycloakClient.baseUrl + path
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodPut, resourceUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = keycloakClient.sendRequest(ctx, request, nil)
+
+	return err
+}
+
 func (keycloakClient *KeycloakClient) delete(ctx context.Context, path string, requestBody interface{}) error {
 	resourceUrl := keycloakClient.baseUrl + apiUrl + path
 

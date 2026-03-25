@@ -10,7 +10,8 @@ import (
 
 func dataSourceKeycloakOrganizationRole() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceKeycloakOrganizationRoleRead,
+		ReadContext:        dataSourceKeycloakOrganizationRoleRead,
+		DeprecationMessage: "please use keycloak_organization_global_roles and keycloak_organization_global_role instead",
 		Schema: map[string]*schema.Schema{
 			"realm": {
 				Type:     schema.TypeString,
@@ -43,7 +44,7 @@ func dataSourceKeycloakOrganizationRoleRead(ctx context.Context, data *schema.Re
 
 	role, err := keycloakClient.GetOrganizationRole(ctx, realmName, organizationId, roleName)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(wrapOrganizationRoleAmbiguousError(err))
 	}
 
 	mapFromOrganizationRoleToData(data, role)

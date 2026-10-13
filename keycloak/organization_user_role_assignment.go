@@ -29,9 +29,6 @@ func (keycloakClient *KeycloakClient) GetOrganizationRoleById(ctx context.Contex
 	}
 
 	role.RealmId = realmId
-	if role.Default {
-		role.IsDefault = true
-	}
 
 	return role, nil
 }

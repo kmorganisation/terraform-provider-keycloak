@@ -13,12 +13,9 @@ type OrganizationGlobalRole struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 	IsDefault   bool   `json:"isDefault"`
-	Default     bool   `json:"default,omitempty"`
 }
 
 func (keycloakClient *KeycloakClient) NewOrganizationGlobalRole(ctx context.Context, realmId string, role *OrganizationGlobalRole) error {
-	role.Default = role.IsDefault
-
 	body, location, err := keycloakClient.postRoot(ctx, fmt.Sprintf("/realms/%s/orgs/roles", realmId), role)
 	if err != nil {
 		return err
@@ -94,9 +91,6 @@ func (keycloakClient *KeycloakClient) GetOrganizationGlobalRoles(ctx context.Con
 	}
 
 	for _, role := range roles {
-		if role.Default {
-			role.IsDefault = true
-		}
 
 		role.RealmId = realmId
 	}
@@ -113,16 +107,11 @@ func (keycloakClient *KeycloakClient) GetOrganizationGlobalRole(ctx context.Cont
 	}
 
 	role.RealmId = realmId
-	if role.Default {
-		role.IsDefault = true
-	}
 
 	return role, nil
 }
 
 func (keycloakClient *KeycloakClient) UpdateOrganizationGlobalRole(ctx context.Context, realmId string, role *OrganizationGlobalRole) error {
-	role.Default = role.IsDefault
-
 	err := keycloakClient.putRoot(ctx, fmt.Sprintf("/realms/%s/orgs/roles/%s", realmId, role.Id), role)
 	if err != nil {
 		return err

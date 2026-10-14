@@ -124,6 +124,7 @@ func KeycloakProvider(client *keycloak.KeycloakClient) *schema.Provider {
 			"keycloak_organization_role":                                 resourceKeycloakOrganizationRole(),
 			"keycloak_organization_global_role":                          resourceKeycloakOrganizationGlobalRole(),
 			"keycloak_organization_user_role_assignment":                 resourceKeycloakOrganizationUserRoleAssignment(),
+			"keycloak_organization_role_group":                           resourceKeycloakOrganizationRoleGroup(),
 			"keycloak_webhook":                                           resourceKeycloakWebhook(),
 		},
 		Schema: map[string]*schema.Schema{
